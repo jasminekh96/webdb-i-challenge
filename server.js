@@ -6,6 +6,11 @@ const accountRouter = require('./data/seeds/accountRouter');
 
 const server = express();
 
+function logger(req, res, next) {
+	console.log(`${req.method} to ${req.originalUrl} at ${new Date()}`);
+	next();
+}
+server.use(logger);
 server.use(express.json());
 
 server.use('/api/budget', accountRouter);

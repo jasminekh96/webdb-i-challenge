@@ -32,7 +32,7 @@ router.get('/:id', (req, res) => {
 		});
 });
 
-router.post('/', (req, res) => {
+router.post('/', validateAccount, (req, res) => {
 	const accountData = req.body;
 	knex('accounts')
 		.insert(accountData, 'id')
@@ -48,11 +48,11 @@ router.post('/', (req, res) => {
 		});
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', validateAccount, (req, res) => {
 	const { id } = req.params;
 	const changes = req.body;
 	knex('accounts')
-		.where({ id })
+		.where({ id: id })
 		.update(changes)
 		.then((count) => {
 			res.status(200).json({ message: `${count} record(s) updated` });
@@ -79,5 +79,39 @@ router.delete('/:id', (req, res) => {
 			res.status(500).json({ errorMessage: 'error deleting the account' });
 		});
 });
+
+// function validateBudgetId(req, res, next) {
+// 	if (req.params.id) {
+// 		knex
+// 			.select(req.params.id)
+// 			.then((accounts) => {
+// 				if (accounts) {
+// 					req.accounts = accounts;
+// 					next();
+// 				} else {
+// 					res.status(404).json({ message: 'invalid budget ID' });
+// 				}
+// 			})
+// 			.catch((error) => {
+// 				console.log(error);
+// 				res.status(500).json({
+// 					message : 'The ID information could not be retrieved.',
+// 				});
+// 			});
+// 	}
+// }
+
+function validateAccount(req, res, next) {
+	if (!Object.entries(req.body).length) {
+		res.status(404).json({ message: 'missing body' });
+	}
+	if (!req.body.name) {
+		res.status(404).json({ message: 'missing name' });
+	}
+	if (!req.body.budget) {
+		res.status(404).json({ message: 'missing budget' });
+	}
+	next();
+}
 
 module.exports = router;
